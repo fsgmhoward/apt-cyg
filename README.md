@@ -1,38 +1,58 @@
-apt-cyg
-=======
+# apt-cyg
+## A Cygwin Command-line Package Manager
 
-:warning:
-
-The original author is now actively including updates:
-[transcode-open/apt-cyg](https://github.com/transcode-open/apt-cyg).
-
-All updates in this repository are already adopted in there.
-Therefore, it is better to use above.
+The original apt-cyg, which is transcode-open/apt-cyg, is taken down by DMCA for unknown reason.  
+This script seems to be abandoned for a long time.  
+I forked the code and decided to maintain the code by myself.  
 
 - - -
 
-A command-line software installer for Cygwin.
+A command-line software installer for Cygwin.  
 Original version is available in http://code.google.com/p/apt-cyg/.
 
-Recently, Cygwin mirror sites change their directory structure,
-and original apt-cyg doesn't work on them anymore.
+This tool can provide you the similar experience as apt-get in OSes of Debian family.  
+For example, you can install unzip using this command.
 
-In this repository, an updated version of apt-cyg which can be used for
-the new Cygwin mirror site strucuture is available.
+    $ apt-cyg install unzip
+
+and all the dependencies will be automatically installed as well.
+You can execute this for further help.
+
+    $ apt-cyg --help
 
 
 ## Installation
 
-    $ git clone git@github.com:rcmdnk/apt-cyg.git
-    $ cp apt-cyg/apt-cyg /bin/
-    $ rm -rf apt-cyg # if the local repository is not necessary
+    $ git clone https://github.com/fsgmhoward/apt-cyg 
+    $ cp apt-cyg/apt-cyg /bin/ 
+    $ rm -rf apt-cyg # if the local repository is not necessary 
 
 ## Usage
-13/08/2013 update:
-This version can be used exactly same way with original apt-cyg.
-Architecture will be set automatically.
+This version can be used exactly same way with original apt-cyg. I will tried to post a manual later.  
 
-If you want to specify mirror site, put x86 (for 32 bit machine) or x86_64 (for 64 bit machine) at the end of URL
+The script will automatically detect your system's architecture and you do not need to set it manually.  
+However, if you want to specify mirror site using `-m`, you are required to put x86 (for 32 bit machine) or x86_64 (for 64 bit machine) at the end of the mirror URL.
 
     $ apt-cyg update -m ftp://mirror.mcs.anl.gov/pub/cygwin/x86_64/
 
+Generally it is more convinent to set the mirror address in the script by editing this line so that you do not need to use `-m` every time.
+
+    mirror=ftp://mirror.mcs.anl.gov/pub/cygwin
+
+
+## License
+Copyright (C) 2005-9, Stephen Jungels  
+Copyright (C) 2013, rcmdnk  
+Copyright (C) 2016, Howard Liu  
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+[http://www.fsf.org/licensing/licenses/gpl.html](http://www.fsf.org/licensing/licenses/gpl.html)
