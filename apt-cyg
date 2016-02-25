@@ -4,6 +4,7 @@
 #
 # Copyright (C) 2005-9, Stephen Jungels
 # Copyright (C) 2013, rcmdnk
+# Copyright (C) 2016, Howard Liu
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -17,10 +18,8 @@
 #
 # (http://www.fsf.org/licensing/licenses/gpl.html)
 
-# this script requires some packages
-
-# ChangeLog
-# - 2013/08/12: Update for directory changes of Cygwin mirror sites
+# This script requires wget, tar, gawk, xz and bzip2 to be installed
+# Cached files such as downloaded packages will be stored in /setup by default
 
 WGET=`which wget 2> /dev/null`
 BZIP2=`which bzip2 2> /dev/null`
@@ -37,10 +36,10 @@ fi
 
 function usage()
 {
-  echo apt-cyg: Installs and removes Cygwin packages.
+  version
   echo "  \"apt-cyg install <package names>\" to install packages"
   echo "  \"apt-cyg remove <package names>\" to remove packages"
-  echo "  \"apt-cyg update\" to update setup.ini"
+  echo "  \"apt-cyg update\" to update local repository cache"
   echo "  \"apt-cyg show\" to show installed packages"
   echo "  \"apt-cyg find <patterns>\" to find packages matching patterns"
   echo "  \"apt-cyg describe <patterns>\" to describe packages matching patterns"
@@ -48,32 +47,32 @@ function usage()
   echo "Options:"
   echo "  --mirror, -m <url> : set mirror (Put x86/x86_64 at the end"
   echo "                       if you want to specify architecture)"
-  echo "  --cache, -c <dir>  : set cache"
-  echo "  --file, -f <file>  : read package names from file"
-  echo "  --noupdate, -u     : don't update setup.ini from mirror"
-  echo "  --help"
-  echo "  --version"
+  echo "  --cache,  -c <dir> : set cache directory"
+  echo "  --file,   -f <file>: read package names from file"
+  echo "  --help             : show this manual"
+  echo "  --version          : show the version of apt-cyg"
 }
-
 
 
 function version()
 {
-  echo "apt-cyg version 0.57"
-  echo "Written by Stephen Jungels"
+  echo "apt-cyg version 0.58"
+  echo "Command-line package manager for Cygwin"
+  echo "Written by Stephen Jungels. Improved by rcmdmk and Howard Liu."
   echo ""
-  echo "Copyright (c) 2005-9 Stephen Jungels.  Released under the GPL."
+  echo "Copyright (c) 2016 Howard Liu. Released under the GPL."
 }
 
 
 function findworkspace()
 {
-  # default working directory and mirror
-
+  # set your favourite mirrior here
   mirror=ftp://mirror.mcs.anl.gov/pub/cygwin
-  arch=x86_64
+  # detect the machine's architecture
   if [ "`uname -m`" = "i686" ];then
     arch=x86
+  else
+    arch=x86_64
   fi
   cache=/setup
 
@@ -108,25 +107,22 @@ function findworkspace()
 
 function getsetup()
 {
-  if test "$noscripts" == "0" -a "$noupdate" == "0"
+  touch setup.ini
+  mv setup.ini setup.ini-save
+  wget -q --show-progress=on -N $mirror/$arch/setup.bz2
+  if test -e setup.bz2 && test $? -eq 0
   then
-    touch setup.ini
-    mv setup.ini setup.ini-save
-    wget -N $mirror/$arch/setup.bz2
-    if test -e setup.bz2 && test $? -eq 0
+    bunzip2 setup.bz2
+    mv setup setup.ini
+    echo Updated setup.ini
+  else
+    wget -q --show-progress=on -N $mirror/$arch/setup.ini
+    if test -e setup.ini && test $? -eq 0
     then
-      bunzip2 setup.bz2
-      mv setup setup.ini
       echo Updated setup.ini
     else
-      wget -N $mirror/$arch/setup.ini
-      if test -e setup.ini && test $? -eq 0
-      then
-        echo Updated setup.ini
-      else
-        mv setup.ini-save setup.ini
-        echo Error updating setup.ini, reverting
-      fi
+      mv setup.ini-save setup.ini
+      echo Error updating setup.ini, reverting
     fi
   fi
 }
@@ -141,11 +137,17 @@ function checkpackages()
   fi
 }
 
+function checksetup()
+{
+  if test ! -e setup.ini
+  then
+    getsetup
+  fi
+}
 
 # process options
 
 noscripts=0
-noupdate=0
 file=""
 dofile=0
 command=""
@@ -179,11 +181,6 @@ do
       shift
     ;;
 
-    --noupdate|-u)
-      noupdate=1
-      shift
-    ;;
-
     --help)
       usage
       exit 0
@@ -214,13 +211,11 @@ do
         packages="$packages $1"
       fi
       shift
-
     ;;
 
     *)
       packages="$packages $1"
       shift
-
     ;;
 
   esac
@@ -261,7 +256,7 @@ case "$command" in
 
     checkpackages
     findworkspace
-    getsetup
+    checksetup
 
     for pkg in $packages
     do
@@ -281,7 +276,8 @@ case "$command" in
 
     checkpackages
     findworkspace
-    getsetup
+    checksetup
+
     for pkg in $packages
     do
       echo ""
@@ -320,7 +316,7 @@ case "$command" in
 
     checkpackages
     findworkspace
-    getsetup
+    checksetup
 
     for pkg in $packages
     do
@@ -363,14 +359,15 @@ case "$command" in
 
     file=`basename $install`
     cd "release/$pkg"
-    wget -nc $mirror/$install
+    wget -q --show-progress=on -nc $mirror/$install
 
-    # check the md5
+    # check the SHA5 sum
     digest=`cat "desc" | awk '/^install: / { print $4; exit }'`
-    digactual=`md5sum $file | awk '{print $1}'`
+    digactual=`sha512sum $file | awk '{print $1}'`
     if ! test $digest = $digactual
     then
-      echo MD5 sum did not match, exiting
+      echo SHA512 sum did not match, deleting the downloaded file and exiting
+      rm -rf "release/$pkg"
       exit 1
     fi
 
@@ -383,7 +380,6 @@ case "$command" in
     gzip -f "/etc/setup/$pkg.lst"
     cd ../..
 
-
     # update the package database
 
     cat /etc/setup/installed.db | awk > /tmp/awk.$$ -v pkg="$pkg" -v bz=$file \
@@ -391,7 +387,6 @@ case "$command" in
        END{if (ins != 1) print pkg " " bz " 0"}'
     mv /etc/setup/installed.db /etc/setup/installed.db-save
     mv /tmp/awk.$$ /etc/setup/installed.db
-
 
     # recursively install required packages
 
@@ -497,4 +492,3 @@ case "$command" in
   ;;
 
 esac
-

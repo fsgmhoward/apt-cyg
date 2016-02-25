@@ -1,7 +1,7 @@
 # apt-cyg
 ## A Cygwin Command-line Package Manager
 
-The original apt-cyg, which is transcode-open/apt-cyg, is taken down by DMCA for unknown reason.  
+The original apt-cyg, which is [transcode-open/apt-cyg](https://github.com/transcode-open/apt-cyg), is taken down by DMCA for unknown reason.  
 This script seems to be abandoned for a long time.  
 I forked the code and decided to maintain the code by myself.  
 
@@ -22,14 +22,15 @@ You can execute this for further help.
 
 
 ## Installation
+First you need to install git, wget, tar, gawk, xz and bzip2 using the Cygwin's official installer.
+Then you can execute these commands in your Cygwin console:
 
     $ git clone https://github.com/fsgmhoward/apt-cyg 
     $ cp apt-cyg/apt-cyg /bin/ 
     $ rm -rf apt-cyg # if the local repository is not necessary 
 
 ## Usage
-This version can be used exactly same way with original apt-cyg. I will tried to post a manual later.  
-
+This version can be used similiarly to the original apt-cyg. I will tried to post a manual later. You can use `--help` for the usage of apt-cyg.  
 The script will automatically detect your system's architecture and you do not need to set it manually.  
 However, if you want to specify mirror site using `-m`, you are required to put x86 (for 32 bit machine) or x86_64 (for 64 bit machine) at the end of the mirror URL.
 
