@@ -1,9 +1,10 @@
 # apt-cyg
 ## A Cygwin Command-line Package Manager
 
-The original apt-cyg, which is [transcode-open/apt-cyg](https://github.com/transcode-open/apt-cyg), is taken down by DMCA for unknown reason.  
-This script seems to be abandoned for a long time.  
-I forked the code and decided to maintain the code by myself.  
+如果你想看中文的介绍，请阅读我的博文：[点击进入](https://blog.ixnet.work/2016/02/27/apt-cyg/)
+
+The original apt-cyg is [transcode-open/apt-cyg](https://github.com/transcode-open/apt-cyg).
+This version of apt-cyg is derived from [rcmdnk/apt-cyg](https://github.com/rcmdnk/apt-cyg)  
 
 - - -
 
@@ -34,11 +35,11 @@ This version can be used similiarly to the original apt-cyg. I will tried to pos
 The script will automatically detect your system's architecture and you do not need to set it manually.  
 However, if you want to specify mirror site using `-m`, you are required to put x86 (for 32 bit machine) or x86_64 (for 64 bit machine) at the end of the mirror URL.
 
-    $ apt-cyg update -m ftp://mirror.mcs.anl.gov/pub/cygwin/x86_64/
+    $ apt-cyg update -m http://download.nus.edu.sg/mirror/cygwin/x86_64/
 
 Generally it is more convinent to set the mirror address in the script by editing this line so that you do not need to use `-m` every time.
 
-    mirror=ftp://mirror.mcs.anl.gov/pub/cygwin
+    mirror=http://download.nus.edu.sg/mirror/cygwin
 
 
 ## License
