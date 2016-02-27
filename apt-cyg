@@ -67,7 +67,7 @@ function version()
 function findworkspace()
 {
   # set your favourite mirrior here
-  mirror=ftp://mirror.mcs.anl.gov/pub/cygwin
+  mirror=http://download.nus.edu.sg/mirror/cygwin
   # detect the machine's architecture
   if [ "`uname -m`" = "i686" ];then
     arch=x86
